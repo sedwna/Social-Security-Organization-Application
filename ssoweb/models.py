@@ -1,8 +1,11 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
+
+
 # Create your models here.
 
-class Person(models.Model):
+
+class User(AbstractUser):
     class Province(models.TextChoices):
         TEHRAN = '021', 'تهران'
         KHUZESTAN = '061', 'خوزستان'
@@ -37,38 +40,14 @@ class Person(models.Model):
         KHORASAN_NORTH = '058', 'خراسان شمالی'
         KHORASAN_SOUTH = '056', 'خراسان جنوبی'
 
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
-    national_code = models.CharField(max_length=10, unique=True)
-    phone_number = models.CharField(max_length=11, unique=True)
-    birth_date = models.DateField()
-    address = models.TextField(max_length=300)
-    slug = models.SlugField(max_length=250)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    province = models.CharField(max_length=3,choices=Province.choices,default=None)
+    class Gender(models.TextChoices):
+        MALE = 'M', 'آقا'
+        FEMALE = 'F', 'خانم'
 
 
-    class Meta:
-        ordering = ('-created_at',)
-        indexes = [
-            models.Index(fields=['-created_at']),
-        ]
-    def __str__(self):
-        return f'{self.first_name} {self.last_name}'
 
-
-class File(models.Model):
-    person = models.ForeignKey(User, null=True, on_delete=models.SET_NULL,related_name='userFiles')
-
-#
-#
-# class RealFile(models.Model):
-#
-#     person = models.ForeignKey(User, null=True, on_delete=models.SET_NULL,related_name='user-files')
-#
-#
-#
-# class LegalFile(models.Model):
-#     person = models.ForeignKey(User, null=True, on_delete=models.SET_NULL,related_name='user-files')
-
+    date_of_birth = models.DateField(null=True, blank=True)
+    phone_number = models.CharField(max_length=11, null=True, blank=True)
+    national_code = models.CharField(max_length=11, null=True, blank=True)
+    province = models.CharField(max_length=3,choices=Province.choices)
+    gender = models.CharField(max_length=1,choices=Gender.choices)
