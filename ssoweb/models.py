@@ -44,10 +44,43 @@ class User(AbstractUser):
         MALE = 'M', 'آقا'
         FEMALE = 'F', 'خانم'
 
-
+    class UserType(models.TextChoices):
+        REAL = 'R', 'حقیقی'
+        LEGAL = 'L', 'حقوقی'
 
     date_of_birth = models.DateField(null=True, blank=True)
     phone_number = models.CharField(max_length=11, null=True, blank=True)
     national_code = models.CharField(max_length=11, null=True, blank=True)
-    province = models.CharField(max_length=3,choices=Province.choices)
-    gender = models.CharField(max_length=1,choices=Gender.choices)
+    province = models.CharField(max_length=3, choices=Province.choices)
+    gender = models.CharField(max_length=1, choices=Gender.choices)
+    user_type = models.CharField(max_length=1, choices=UserType.choices, null=True, blank=True)
+
+
+class File(models.Model):
+    # relation
+    id_file = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_post')
+
+
+class   RealFile(models.Model):
+    pass
+
+class LegalFile(models.Model):
+    pass
+
+class Workshop(models.Model):
+    pass
+
+
+class Transaction(models.Model):
+    pass
+
+
+class Payment(models.Model):
+    pass
+
+
+class List(models.Model):
+    pass
+
+class InsurancePremium(models.Model):
+    pass
