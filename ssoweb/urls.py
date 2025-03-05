@@ -13,5 +13,6 @@ urlpatterns = [
     path('user-profile/', UserProfileView.as_view(), name='user_profile'),
     path('create-individual-case/', CreateIndividualCaseView.as_view(), name='create_case'),
     path('create-legal-case/', CreateLegalCaseView.as_view(), name='create_case'),
+    path('user-cases/', UserCasesView.as_view(), name='user-cases'),
 
 ]

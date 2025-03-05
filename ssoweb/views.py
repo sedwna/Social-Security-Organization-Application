@@ -171,3 +171,31 @@ class CreateLegalCaseView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserCasesView(APIView):
+    def get(self, request):
+        phone_number = request.query_params.get('phone_number')  # دریافت شماره تماس از پارامترهای درخواست
+
+        if not phone_number:
+            return Response({"error": "شماره تماس الزامی است."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = CustomUser.objects.get(phone_number=phone_number)  # جستجوی کاربر بر اساس شماره تماس
+        except CustomUser.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # دریافت تمام پرونده‌های حقیقی و حقوقی کاربر
+        individual_cases = IndividualCaseView.objects.filter(user=user)
+        legal_cases = LegalCaseView.objects.filter(user=user)
+
+        # سریالایز کردن داده‌ها
+        individual_serializer = IndividualCaseSerializer(individual_cases, many=True)
+        legal_serializer = LegalCaseSerializer(legal_cases, many=True)
+
+        # ترکیب نتایج
+        response_data = {
+            "individual_cases": individual_serializer.data,
+            "legal_cases": legal_serializer.data
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)
