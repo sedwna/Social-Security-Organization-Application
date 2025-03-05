@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import CustomUser
 from .serializers import CustomUserSerializer  # فرض کنید یک Serializer برای CustomUser دارید
+from rest_framework.permissions import IsAuthenticated
+
 
 # Create your views here.
 
@@ -31,9 +33,8 @@ class SendOTPView(APIView):
         otp.is_valid = True
         otp.save()
 
-        return Response({"message": f"کد تایید {otp_code} به شماره {phone_number} ارسال شد."}, status=status.HTTP_200_OK)
-
-
+        return Response({"message": f"کد تایید {otp_code} به شماره {phone_number} ارسال شد."},
+                        status=status.HTTP_200_OK)
 
 
 class VerifyOTPView(APIView):
@@ -95,7 +96,6 @@ class RegisterUserView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class UserProfileView(APIView):
     def get(self, request):
         """Retrieve user profile based on phone number."""
@@ -113,65 +113,61 @@ class UserProfileView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class CreateCaseView(APIView):
+class CreateIndividualCaseView(APIView):
     def post(self, request):
-        serializer = CaseSerializer(data=request.data)
+        phone_number = request.data.get('phone_number')  # دریافت شماره تماس از درخواست
+
+        try:
+            user = CustomUser.objects.get(phone_number=phone_number)  # جستجوی کاربر بر اساس شماره تماس
+        except CustomUser.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # بررسی نوع شخص
+        if user.person_type != CustomUser.INDIVIDUAL:
+            return Response({"error": "این کاربر نمی‌تواند پرونده حقیقی ایجاد کند."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # ایجاد یک کپی از request.data
+        data = request.data.copy()
+
+        # اضافه کردن user به داده‌های درخواست
+        data['user'] = user.id
+
+        # اعتبارسنجی و ذخیره داده‌ها
+        serializer = IndividualCaseSerializer(data=data)
         if serializer.is_valid():
-            serializer.save(user=request.user)
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-class ListUserCasesView(APIView):
-    def get(self, request):
-        cases = Case.objects.filter(user=request.user)
-        serializer = CaseSerializer(cases, many=True)
-        return Response(serializer.data)
-
-
-
-class CreateWorkshopView(APIView):
+class CreateLegalCaseView(APIView):
     def post(self, request):
-        # دریافت داده‌ها از درخواست
-        case_number = request.data.get('case_number')
-        workshop_code = request.data.get('workshop_code')
-        period = request.data.get('period')
-        status = request.data.get('status')
-        activity_type = request.data.get('activity_type')
-        activity_start_date = request.data.get('activity_start_date')
+        phone_number = request.data.get('phone_number')  # دریافت شماره تماس از درخواست
 
-        # بررسی وجود پرونده با این شماره پرونده
         try:
-            case = Case.objects.get(case_number=case_number)
-        except Case.DoesNotExist:
-            return Response({"error": "شماره پرونده پیدا نشد."}, status=status.HTTP_400_BAD_REQUEST)
+            user = CustomUser.objects.get(phone_number=phone_number)  # جستجوی کاربر بر اساس شماره تماس
+        except CustomUser.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        # ایجاد کارگاه جدید
-        workshop = Workshop.objects.create(
-            case=case,
-            workshop_code=workshop_code,
-            period=period,
-            status=status,
-            activity_type=activity_type,
-            activity_start_date=activity_start_date
-        )
+        # بررسی نوع شخص
+        if user.person_type != CustomUser.LEGAL:
+            return Response({"error": "این کاربر نمی‌تواند پرونده حقوقی ایجاد کند."},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-        # بازگشت پاسخ موفقیت‌آمیز
-        serializer = WorkshopSerializer(workshop)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # بررسی فایل‌های حقیقی
+        if (request.data.get('trade_license') or request.data.get('lease_agreement') or
+            request.data.get('employer_identification_docs') or request.data.get('other_official_licenses')):
+            return Response({"error": "کاربر حقوقی نمی‌تواند فایل‌های حقیقی ارسال کند."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # ایجاد یک کپی از request.data
+        data = request.data.copy()
 
+        # اضافه کردن user به داده‌های درخواست
+        data['user'] = user.id
 
-class ListUserWorkshopsView(APIView):
-    def get(self, request):
-        # دریافت شماره پرونده کاربر
-        user = request.user  # فرض می‌کنیم که کاربر احراز هویت شده است
-        case_number = user.case.case_number  # فرض می‌کنیم که هر کاربر فقط یک پرونده دارد
-
-        # فیلتر کارگاه‌ها بر اساس شماره پرونده کاربر
-        workshops = Workshop.objects.filter(case__case_number=case_number)
-
-        # استفاده از Serializer برای تبدیل داده‌ها به فرمت JSON
-        serializer = WorkshopSerializer(workshops, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
+        # اعتبارسنجی و ذخیره داده‌ها
+        serializer = LegalCaseSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
