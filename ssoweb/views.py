@@ -1,12 +1,10 @@
-import random
-from .models import OTP
 from rest_framework.authtoken.models import Token
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from .models import CustomUser
 from .serializers import *
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import CustomUser
+from .serializers import CustomUserSerializer  # فرض کنید یک Serializer برای CustomUser دارید
 
 # Create your views here.
 
@@ -51,8 +49,8 @@ class VerifyOTPView(APIView):
         except OTP.DoesNotExist:
             return Response({"error": "کد تایید اشتباه است."}, status=status.HTTP_400_BAD_REQUEST)
 
-        if otp.is_expired():
-            return Response({"error": "کد تایید منقضی شده است."}, status=status.HTTP_400_BAD_REQUEST)
+        # if otp.is_expired():
+        #     return Response({"error": "کد تایید منقضی شده است."}, status=status.HTTP_400_BAD_REQUEST)
 
         # گرفتن تمامی شماره تماس‌های موجود در CustomUser
         allowed_phone_numbers = CustomUser.objects.values_list('phone_number', flat=True)
@@ -97,15 +95,11 @@ class RegisterUserView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from .models import CustomUser
-from .serializers import CustomUserSerializer  # فرض کنید یک Serializer برای CustomUser دارید
 
 class UserProfileView(APIView):
     def get(self, request):
-        phone_number = request.query_params.get("phone_number")  # شماره تماس از پارامترهای URL دریافت می‌شود
+        """Retrieve user profile based on phone number."""
+        phone_number = request.query_params.get("phone_number")  # Extract phone number from query parameters
 
         if not phone_number:
             return Response({"error": "شماره تماس ضروری است!"}, status=status.HTTP_400_BAD_REQUEST)
@@ -115,13 +109,8 @@ class UserProfileView(APIView):
         except CustomUser.DoesNotExist:
             return Response({"error": "کاربری با این شماره تماس پیدا نشد!"}, status=status.HTTP_404_NOT_FOUND)
 
-        # استفاده از Serializer برای تبدیل مدل به داده قابل نمایش
         serializer = CustomUserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-
-
 
 
 class CreateCaseView(APIView):

@@ -9,12 +9,19 @@ from rest_framework import serializers
 from .models import *
 
 
-
-
 class CustomUserSerializer(serializers.ModelSerializer):
+    person_type_display = serializers.CharField(source="get_person_type_display", read_only=True)
+    gender_display = serializers.CharField(source="get_gender_display", read_only=True)
+    province_display = serializers.CharField(source="get_province_display", read_only=True)
+
     class Meta:
         model = CustomUser
-        fields = ['username', 'phone_number', 'gender', 'province', 'address', 'national_id', 'birth_date', 'person_type']
+        fields = [
+            "id", "username", "person_type", "person_type_display",
+            "phone_number", "gender", "gender_display", "province",
+            "province_display", "address", "national_id", "birth_date"
+        ]
+
 
 
 class CaseSerializer(serializers.ModelSerializer):
