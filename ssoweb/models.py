@@ -5,82 +5,63 @@ from django.contrib.auth.models import AbstractUser
 # Create your models here.
 
 
-class User(AbstractUser):
-    class Province(models.TextChoices):
-        TEHRAN = '021', 'تهران'
-        KHUZESTAN = '061', 'خوزستان'
-        BUSHEHR = '077', 'بوشهر'
-        ESFAHAN = '031', 'اصفهان'
-        KHORASAN_RAZAVI = '051', 'خراسان رضوی'
-        FARS = '071', 'فارس'
-        AZARBAYJAN_EAST = '041', 'آذربایجان شرقی'
-        MAZANDARAN = '011', 'مازندران'
-        KERMAN = '034', 'کرمان'
-        ALBORZ = '026', 'البرز'
-        GILAN = '013', 'گیلان'
-        KOHKILOUYE_AND_BOYERAHMAD = '074', 'کهگیلویه و بویراحمد'
-        AZARBAYJAN_WEST = '044', 'آذربایجان غربی'
-        HORMOZGAN = '076', 'هرمزگان'
-        MARKAZI = '086', 'مرکزی'
-        YAZD = '035', 'یزد'
-        TRANSREGIONAL = '000', 'فرامنطقه‌ای'
-        KERMANSHAH = '083', 'کرمانشاه'
-        QAZVIN = '028', 'قزوین'
-        SISTAN_AND_BALUCHESTAN = '054', 'سیستان و بلوچستان'
-        HAMEDAN = '081', 'همدان'
-        ILAM = '084', 'ایلام'
-        GOLESTAN = '017', 'گلستان'
-        LORESTAN = '066', 'لرستان'
-        ZANJAN = '024', 'زنجان'
-        ARDABIL = '045', 'اردبیل'
-        QOM = '025', 'قم'
-        KORDESTAN = '087', 'کردستان'
-        SEMNAN = '023', 'سمنان'
-        CHAHARMAHAL_AND_BAKHTIYARI = '038', 'چهارمحال و بختیاری'
-        KHORASAN_NORTH = '058', 'خراسان شمالی'
-        KHORASAN_SOUTH = '056', 'خراسان جنوبی'
+class CustomUser(AbstractUser):
+    INDIVIDUAL = 'individual'
+    LEGAL = 'legal'
 
-    class Gender(models.TextChoices):
-        MALE = 'M', 'آقا'
-        FEMALE = 'F', 'خانم'
+    PERSON_TYPE_CHOICES = [
+        (INDIVIDUAL, 'حقیقی'),
+        (LEGAL, 'حقوقی'),
+    ]
 
-    class UserType(models.TextChoices):
-        REAL = 'R', 'حقیقی'
-        LEGAL = 'L', 'حقوقی'
+    MALE = 'male'
+    FEMALE = 'female'
 
-    date_of_birth = models.DateField(null=True, blank=True)
-    phone_number = models.CharField(max_length=11, null=True, blank=True)
-    national_code = models.CharField(max_length=11, null=True, blank=True)
-    province = models.CharField(max_length=3, choices=Province.choices)
-    gender = models.CharField(max_length=1, choices=Gender.choices)
-    user_type = models.CharField(max_length=1, choices=UserType.choices, null=True, blank=True)
+    GENDER_CHOICES = [
+        (MALE, 'مرد'),
+        (FEMALE, 'زن'),
+    ]
 
+    PROVINCE_CHOICES = [
+        ('021', 'تهران'),
+        ('061', 'خوزستان'),
+        ('077', 'بوشهر'),
+        ('031', 'اصفهان'),
+        ('051', 'خراسان رضوی'),
+        ('071', 'فارس'),
+        ('041', 'آذربایجان شرقی'),
+        ('011', 'مازندران'),
+        ('034', 'کرمان'),
+        ('026', 'البرز'),
+        ('013', 'گیلان'),
+        ('074', 'کهگیلویه و بویراحمد'),
+        ('044', 'آذربایجان غربی'),
+        ('076', 'هرمزگان'),
+        ('086', 'مرکزی'),
+        ('035', 'یزد'),
+        ('083', 'کرمانشاه'),
+        ('028', 'قزوین'),
+        ('054', 'سیستان و بلوچستان'),
+        ('081', 'همدان'),
+        ('084', 'ایلام'),
+        ('017', 'گلستان'),
+        ('066', 'لرستان'),
+        ('024', 'زنجان'),
+        ('045', 'اردبیل'),
+        ('025', 'قم'),
+        ('087', 'کردستان'),
+        ('023', 'سمنان'),
+        ('038', 'چهارمحال و بختیاری'),
+        ('058', 'خراسان شمالی'),
+        ('056', 'خراسان جنوبی'),
+    ]
 
-class File(models.Model):
-    # relation
-    id_file = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_post')
+    person_type = models.CharField(max_length=10, choices=PERSON_TYPE_CHOICES, verbose_name="نوع شخص")
+    phone_number = models.CharField(max_length=11, unique=True, verbose_name="شماره تماس")
+    gender = models.CharField(max_length=6, choices=GENDER_CHOICES, verbose_name="جنسیت")
+    province = models.CharField(max_length=3, choices=PROVINCE_CHOICES, verbose_name="استان محل سکونت")
+    address = models.TextField(verbose_name="آدرس دقیق")
+    national_id = models.CharField(max_length=10, unique=True, verbose_name="کد ملی")
 
-
-class   RealFile(models.Model):
-    pass
-
-class LegalFile(models.Model):
-    pass
-
-class Workshop(models.Model):
-    pass
-
-
-class Transaction(models.Model):
-    pass
-
-
-class Payment(models.Model):
-    pass
-
-
-class List(models.Model):
-    pass
-
-class InsurancePremium(models.Model):
-    pass
+    def __str__(self):
+        return f"{self.username} - {self.phone_number}"
