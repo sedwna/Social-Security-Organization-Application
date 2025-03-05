@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
+import random
+from django.utils.timezone import now
+from django.contrib.auth import get_user_model
 
 # Create your models here.
 
@@ -65,3 +67,27 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return f"{self.username} - {self.phone_number}"
+
+
+
+
+User = get_user_model()
+
+class OTP(models.Model):
+    phone_number = models.CharField(max_length=11, unique=True, verbose_name="شماره تماس")
+    code = models.CharField(max_length=6, verbose_name="کد تأیید")
+    created_at = models.DateTimeField(default=now, verbose_name="زمان ایجاد")
+
+    def generate_otp(self):
+        """تولید کد ۶ رقمی تصادفی"""
+        self.code = str(random.randint(100000, 999999))
+        self.save()
+        return self.code
+
+    def is_valid(self):
+        """بررسی معتبر بودن کد (مثلاً ۵ دقیقه اعتبار داشته باشد)"""
+        from datetime import timedelta
+        return now() - self.created_at < timedelta(minutes=5)
+
+    def __str__(self):
+        return f"{self.phone_number} - {self.code}"
