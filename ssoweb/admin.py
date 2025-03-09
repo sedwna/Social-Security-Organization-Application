@@ -8,7 +8,7 @@ from .models import OTP
 # مدل کاربران
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
-    list_display = ('first_name','last_name', 'phone_number', 'person_type', 'gender', 'national_id')
+    list_display = ('username','first_name','last_name', 'person_type', 'gender', 'national_id')
     search_fields = ('first_name','last_name', 'phone_number', 'national_id')
     list_filter = ('person_type', 'gender', 'province')
 
