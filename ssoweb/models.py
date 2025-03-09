@@ -124,7 +124,7 @@ class LegalCaseView(BaseCase):
 
 class OTP(models.Model):
     phone_number = models.CharField(max_length=11, unique=True)
-    code = models.CharField(max_length=6)
+    code = models.CharField(max_length=4)
     created_at = models.DateTimeField(default=timezone.now)
     is_valid = models.BooleanField(default=True)
 

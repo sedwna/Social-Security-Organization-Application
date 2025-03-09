@@ -25,7 +25,7 @@ class SendOTPView(APIView):
         #     return Response({"error": "این شماره تماس در سیستم ثبت نشده است."}, status=status.HTTP_400_BAD_REQUEST)
 
         # تولید کد OTP
-        otp_code = str(random.randint(100000, 999999))
+        otp_code = str(random.randint(1000, 9999))
 
         # ذخیره OTP در دیتابیس
         otp, created = OTP.objects.get_or_create(phone_number=phone_number)
