@@ -18,11 +18,11 @@ class SendOTPView(APIView):
         if not phone_number:
             return Response({"error": "شماره تماس ضروری است!"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # بررسی وجود شماره تلفن در سیستم
-        try:
-            user = CustomUser.objects.get(phone_number=phone_number)
-        except CustomUser.DoesNotExist:
-            return Response({"error": "این شماره تماس در سیستم ثبت نشده است."}, status=status.HTTP_400_BAD_REQUEST)
+        # بررسی وود شماره تلفن در سیستم
+        # try:
+        #     user = CustomUser.objects.get(phone_number=phone_number)
+        # except CustomUser.DoesNotExist:
+        #     return Response({"error": "این شماره تماس در سیستم ثبت نشده است."}, status=status.HTTP_400_BAD_REQUEST)
 
         # تولید کد OTP
         otp_code = str(random.randint(100000, 999999))
