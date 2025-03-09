@@ -8,21 +8,21 @@ from .models import OTP
 # مدل کاربران
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
-    list_display = ('username', 'phone_number', 'person_type', 'gender', 'national_id')
-    search_fields = ('username', 'phone_number', 'national_id')
+    list_display = ('first_name','last_name', 'phone_number', 'person_type', 'gender', 'national_id')
+    search_fields = ('first_name','last_name', 'phone_number', 'national_id')
     list_filter = ('person_type', 'gender', 'province')
 
     fieldsets = (
         (None, {
             'fields': (
-                'person_type', 'username', 'phone_number', 'password', 'gender', 'province', 'address', 'national_id',
+                'person_type', 'first_name','last_name', 'phone_number', 'password', 'gender', 'province', 'address', 'national_id',
                 'birth_date',
             )
         }),
     )
     add_fieldsets = (
         (None, {
-            'fields': ('username', 'phone_number', 'password')
+            'fields': ('first_name','last_name', 'phone_number', 'password')
         }),
     )
 

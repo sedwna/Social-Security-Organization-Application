@@ -61,7 +61,8 @@ class CustomUser(AbstractUser):
         ('058', 'خراسان شمالی'),
         ('056', 'خراسان جنوبی'),
     ]
-
+    first_name = models.CharField(max_length=15,verbose_name="نام")
+    last_name = models.CharField(max_length=15,verbose_name='نام خانوادگی')
     person_type = models.CharField(max_length=10, choices=PERSON_TYPE_CHOICES, verbose_name="نوع شخص")
     phone_number = models.CharField(max_length=11, unique=True, verbose_name="شماره تماس")
     gender = models.CharField(max_length=6, choices=GENDER_CHOICES, verbose_name="جنسیت")
@@ -71,7 +72,7 @@ class CustomUser(AbstractUser):
     birth_date = models.DateField(null=True, blank=True, verbose_name='تاریخ تولد')
 
     def __str__(self):
-        return f"{self.username} - {self.phone_number}"
+        return f"{self.first_name} - {self.last_name} - {self.phone_number}"
 
 
 
