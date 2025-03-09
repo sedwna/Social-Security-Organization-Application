@@ -65,7 +65,7 @@ class CustomUser(AbstractUser):
     person_type = models.CharField(max_length=10, choices=PERSON_TYPE_CHOICES, verbose_name="نوع شخص")
     phone_number = models.CharField(max_length=11, unique=True, verbose_name="شماره تماس")
     gender = models.CharField(max_length=6, choices=GENDER_CHOICES, verbose_name="جنسیت")
-    province = models.CharField(max_length=3, choices=PROVINCE_CHOICES, verbose_name="استان محل سکونت")
+    province = models.CharField(max_length=25, verbose_name="استان محل سکونت")
     address = models.TextField(verbose_name="آدرس دقیق")
     national_id = models.CharField(max_length=10, unique=True, verbose_name="کد ملی")
     birth_date = models.DateField(null=True, blank=True, verbose_name='تاریخ تولد')
