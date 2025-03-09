@@ -1,3 +1,4 @@
+from django.db.migrations import serializer
 from rest_framework.authtoken.models import Token
 from .serializers import *
 from rest_framework.views import APIView
@@ -54,27 +55,28 @@ class VerifyOTPView(APIView):
         #     return Response({"error": "کد تایید منقضی شده است."}, status=status.HTTP_400_BAD_REQUEST)
 
         # گرفتن تمامی شماره تماس‌های موجود در CustomUser
-        allowed_phone_numbers = CustomUser.objects.values_list('phone_number', flat=True)
+        # allowed_phone_numbers = CustomUser.objects.values_list('phone_number', flat=True)
 
-        if phone_number not in allowed_phone_numbers:
-            return Response({"error": "شما مجاز به ورود نیستید."}, status=status.HTTP_403_FORBIDDEN)
+        # if phone_number not in allowed_phone_numbers:
+        #     return Response({"error": "شما مجاز به ورود نیستید."}, status=status.HTTP_403_FORBIDDEN)
 
         # بررسی وجود کاربر
         try:
             user = CustomUser.objects.get(phone_number=phone_number)
+            token, _ = Token.objects.get_or_create(user=user)
+
+            return Response({"message": "ورود موفق!", "token": token.key}, status=status.HTTP_200_OK)
+
         except CustomUser.DoesNotExist:
-            return Response({"error": "ثبت نام نکردید. ابتدا ثبت نام کنید."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "ورود موفق!", "token": "user not register"}, status=status.HTTP_200_OK)
 
         # ایجاد توکن برای کاربر
-        token, _ = Token.objects.get_or_create(user=user)
 
-        return Response({"message": "ورود موفق!", "token": token.key}, status=status.HTTP_200_OK)
 
 
 class RegisterUserView(APIView):
     def post(self, request):
         serializer = CustomUserSerializer(data=request.data)
-
         if serializer.is_valid():
             # بررسی اینکه آیا شماره تلفن و کد ملی تکراری نباشند
             phone_number = serializer.validated_data.get('phone_number')

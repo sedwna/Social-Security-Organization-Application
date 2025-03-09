@@ -61,20 +61,21 @@ class CustomUser(AbstractUser):
         ('058', 'خراسان شمالی'),
         ('056', 'خراسان جنوبی'),
     ]
-    first_name = models.CharField(max_length=15,verbose_name="نام")
-    last_name = models.CharField(max_length=15,verbose_name='نام خانوادگی')
-    person_type = models.CharField(max_length=10, choices=PERSON_TYPE_CHOICES, verbose_name="نوع شخص")
     phone_number = models.CharField(max_length=11, unique=True, verbose_name="شماره تماس")
-    gender = models.CharField(max_length=6, choices=GENDER_CHOICES, verbose_name="جنسیت")
+    first_name = models.CharField(max_length=15, verbose_name="نام")
+    last_name = models.CharField(max_length=15, verbose_name='نام خانوادگی')
+    person_type = models.CharField(max_length=10, verbose_name="نوع شخص")
+    gender = models.CharField(max_length=5, verbose_name="جنسیت")
     province = models.CharField(max_length=25, verbose_name="استان محل سکونت")
     address = models.TextField(verbose_name="آدرس دقیق")
     national_id = models.CharField(max_length=10, unique=True, verbose_name="کد ملی")
     birth_date = models.DateField(null=True, blank=True, verbose_name='تاریخ تولد')
 
-    def __str__(self):
-        return f"{self.first_name} - {self.last_name} - {self.phone_number}"
 
 
+
+def __str__(self):
+    return f"{self.first_name} - {self.last_name} - {self.phone_number}"
 
 
 class BaseCase(models.Model):
@@ -98,9 +99,9 @@ class BaseCase(models.Model):
         abstract = True  # این کلاس به صورت انتزاعی است و جدول جداگانه‌ای در پایگاه داده ایجاد نمی‌کند.
 
 
-
 class IndividualCaseView(BaseCase):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='individual_cases')  # تغییر related_name
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,
+                             related_name='individual_cases')  # تغییر related_name
 
     # فیلدهای مربوط به کاربران حقیقی
     trade_license = models.FileField(upload_to='trade_licenses/', null=True, blank=True)
@@ -110,6 +111,7 @@ class IndividualCaseView(BaseCase):
 
     def __str__(self):
         return f"Individual Case {self.case_number} - {self.user.phone_number}"
+
 
 class LegalCaseView(BaseCase):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='legal_cases')  # تغییر related_name
@@ -122,6 +124,7 @@ class LegalCaseView(BaseCase):
 
     def __str__(self):
         return f"Legal Case {self.case_number} - {self.user.phone_number}"
+
 
 class OTP(models.Model):
     phone_number = models.CharField(max_length=11, unique=True)
